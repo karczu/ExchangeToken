@@ -12,14 +12,13 @@ contract('Exchange', function (accounts) {
   const initSypply = 21 * 10 ** _decimals;
   const price = 17318200000000000000;
 
-  let init = async () => {
+  beforeEach(async () => {
     tokenAContract = await _TokenA.new()
     tokenBContract = await _TokenB.new()
     exchangeContract = await _Exchange.new(tokenAContract.address, tokenAContract.address, price)
-  }
+  });
 
   describe('Exchange tokens', () => {
-    beforeEach(init)
 
     it('Deploys the contract Token A', async () => {
       assert.ok(tokenAContract.address);
