@@ -1,7 +1,7 @@
 pragma solidity ^0.8.0;
 
-import "node_modules/openzeppelin-solidity/contracts/access/Ownable.sol";
-import "node_modules/openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
+import "../node_modules/openzeppelin-solidity/contracts/access/Ownable.sol";
+import "../node_modules/openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 
 contract TokenB is Ownable, ERC20 {
 
