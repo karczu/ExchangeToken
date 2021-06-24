@@ -59,6 +59,7 @@ contract Exchange is Ownable {
   
     function deposit(address tokenAddress, uint amount) public onlyOwner payable returns (bool success) {
       ERC20(tokenAddress).transferFrom(msg.sender, address(this), amount);
+      //ERC20(tokenAddress).transfer(address(this), amount);
       return true;
   }
 }
