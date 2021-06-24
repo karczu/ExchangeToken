@@ -1,7 +1,7 @@
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "node_modules/openzeppelin-solidity/contracts/access/Ownable.sol";
+import "node_modules/openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 
 contract Exchange is Ownable {
   uint256 private _decimal = 18;
@@ -9,7 +9,7 @@ contract Exchange is Ownable {
   uint public price = 17318200000000000000;
   address public addressTknA;
   address public addressTknB;
-  
+
   event ExchangeTokenEvent(address _user, address _token, uint _amountSell);
 
   constructor(address tokenAddressA, address tokenAddressB, uint priceAB) {
@@ -17,11 +17,6 @@ contract Exchange is Ownable {
     addressTknB = tokenAddressB;
     price = priceAB;
   }
-
-  /**
-  * Fallback function. Used to load the exchange with ether
-  */
-  //fallback() external payable {}
   
   function exchange(address tokenAddress, uint amount) public returns (bool success){
     if (tokenAddress == addressTknA){
@@ -32,6 +27,7 @@ contract Exchange is Ownable {
     }else if(tokenAddress == addressTknB){
         uint _amountBuyTkn = (amount * amountWei) / price ; 
         exchangeHelper(addressTknB, addressTknA, amount, _amountBuyTkn);
+        emit ExchangeTokenEvent(msg.sender, tokenAddress, amount);
         return true;
     }else{
         return false;

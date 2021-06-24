@@ -1,11 +1,11 @@
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "node_modules/openzeppelin-solidity/contracts/access/Ownable.sol";
+import "node_modules/openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 
 contract TokenB is Ownable, ERC20 {
 
-    uint256 initSupply = 21 * (10 ** decimals());
+  uint256 initSupply = 21 * (10 ** decimals());
     
     constructor(
     ) public ERC20("TokenB", "TKNB") {
