@@ -1,16 +1,17 @@
 const _TokenA = artifacts.require('TokenA');
 const _TokenB = artifacts.require('TokenB');
 const _Exchange = artifacts.require('Exchange');
+const BigNumber = require('bignumber.js');
 
-contract('Exchange', function (accounts) {
+contract('Exchange', accounts => {
   let tokenAContract;
   let tokenBContract;
   let exchangeContract;
   const ownerAccount = accounts[0];
   const userAccount = accounts[1];
-  const _decimals = 18;
-  const initSypply = 21 * 10 ** _decimals;
-  const price = 17318200000000000000;
+  const decimals = 18;
+  const initSypply = new BigNumber(21).times(new BigNumber(10).pow(decimals));
+  const price = new BigNumber(17.3182).times(new BigNumber(10).pow(decimals));
 
   beforeEach(async () => {
     tokenAContract = await _TokenA.new()
@@ -28,13 +29,13 @@ contract('Exchange', function (accounts) {
       assert.ok(tokenBContract.address);
     })
 
-    it('Owner should be able to change price', async () => {
-      const newPrice = 4258200000000000000;
+    it('Owner can change price', async () => {
+      let newPrice = new BigNumber(4.2576).times(new BigNumber(10).pow(decimals));
       let priceUpdate = await exchangeContract.updatePrice(newPrice, {from: ownerAccount})
       assert.ok(priceUpdate);
 
-      let priceUpdated = await exchangeContract.price.call();
-      assert.strictEqual(priceUpdated.toNumber(), newPrice);
+      let priceUpdated = new BigNumber(await exchangeContract.price.call());
+      assert.strictEqual(priceUpdated.toNumber(), newPrice.toNumber());
     })
 
   })

@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "bignumber.js": "^9.0.1",
     "ganache-cli": "^6.12.2",
     "mocha": "^9.0.1",
     "solc": "^0.8.0",
