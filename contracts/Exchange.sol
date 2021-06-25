@@ -59,7 +59,8 @@ function exchange(address tokenAddress, uint amount) public returns (bool succes
   }
   
   function deposit(address tokenAddress, uint amount) public onlyOwner payable returns (bool success) {
-    ERC20(tokenAddress).transferFrom(msg.sender, address(this), amount);
+    require(amount > 0, "Deposit amount needs to be over zero!");
+    assert(ERC20(tokenAddress).transferFrom(msg.sender, address(this), amount));
     return true;
   }
 }
