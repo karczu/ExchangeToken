@@ -5,7 +5,7 @@ import "../node_modules/openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 
 contract TokenB is Ownable, ERC20 {
 
-  uint initSupply = 21 * (10 ** decimals());
+  uint initSupply = 99 * (10 ** decimals());
     
     constructor(
     ) public ERC20("TokenB", "TKNB") {
