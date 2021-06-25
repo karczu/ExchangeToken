@@ -11,8 +11,8 @@ contract('Exchange', accounts => {
   const userAccount = accounts[1];
   const decimals = 18;
   const initSupply = new BigNumber(21).times(new BigNumber(10).pow(decimals));
-  const price = new BigNumber(17.3182).times(new BigNumber(10).pow(decimals));
-
+  const price = new BigNumber(4).times(new BigNumber(10).pow(decimals));
+  //17.3182
   beforeEach(async () => {
     tokenAContract = await _TokenA.new({from: ownerAccount})
     tokenBContract = await _TokenB.new()
@@ -94,6 +94,8 @@ contract('Exchange', accounts => {
       let start_owner_B = new BigNumber(await tokenBContract.balanceOf(ownerAccount));
       let start_user_A = new BigNumber(await tokenAContract.balanceOf(userAccount));
       let start_user_B = new BigNumber(await tokenBContract.balanceOf(userAccount));
+      let start_contract_A = new BigNumber(await tokenAContract.balanceOf(exchangeContract.address));
+      let start_contract_B = new BigNumber(await tokenBContract.balanceOf(exchangeContract.address));
 
       //Owner set allowance
       let _amountAllowance = new BigNumber(90).times(new BigNumber(10).pow(decimals));
@@ -112,6 +114,7 @@ contract('Exchange', accounts => {
       let amountUsrAllowanceA = new BigNumber(45).times(new BigNumber(10).pow(decimals));
       await tokenAContract.approve(exchangeContract.address, amountUsrAllowanceA, {from: userAccount});
 
+      //User exchange A -> B
       let amountExchange = new BigNumber(2).times(new BigNumber(10).pow(decimals));
       await exchangeContract.exchange(tokenAContract.address, amountExchange, {from: userAccount});
       
@@ -119,10 +122,11 @@ contract('Exchange', accounts => {
       let end_owner_B = new BigNumber(await tokenBContract.balanceOf(ownerAccount));
       let end_user_A = new BigNumber(await tokenAContract.balanceOf(userAccount));
       let end_user_B = new BigNumber(await tokenBContract.balanceOf(userAccount));
+      let end_contract_A = new BigNumber(await tokenAContract.balanceOf(exchangeContract.address));
+      let end_contract_B = new BigNumber(await tokenBContract.balanceOf(exchangeContract.address));
 
       let tokenBfromA = amountExchange.multipliedBy(price).dividedBy(new BigNumber(10).pow(decimals));
       assert.strictEqual(tokenBfromA.toNumber(), end_user_B.toNumber());
-      //assert.ok(true);
 
       console.log('Price start = ', price.toNumber());
       console.log('--- Owner balance ---');
@@ -131,12 +135,66 @@ contract('Exchange', accounts => {
       console.log('--- User balance ---');
       console.log('Start A = ', start_user_A.toNumber(), '   => Stop A = ', end_user_A.toNumber());
       console.log('Start B = ', start_user_B.toNumber(), '   => Stop B = ', end_user_B.toNumber());
+      console.log('--- Contract balance ---');
+      console.log('Start A = ', start_contract_A.toNumber(), '   => Stop A = ', end_contract_A.toNumber());
+      console.log('Start B = ', start_contract_B.toNumber(), '   => Stop B = ', end_contract_B.toNumber());
+    })
+
+    it('User exchange token B', async () => {
+      let start_owner_A = new BigNumber(await tokenAContract.balanceOf(ownerAccount));
+      let start_owner_B = new BigNumber(await tokenBContract.balanceOf(ownerAccount));
+      let start_user_A = new BigNumber(await tokenAContract.balanceOf(userAccount));
+      let start_user_B = new BigNumber(await tokenBContract.balanceOf(userAccount));
+      let start_contract_A = new BigNumber(await tokenAContract.balanceOf(exchangeContract.address));
+      let start_contract_B = new BigNumber(await tokenBContract.balanceOf(exchangeContract.address));
+
+      //Owner set allowance
+      let _amountAllowance = new BigNumber(90).times(new BigNumber(10).pow(decimals));
+      await tokenAContract.approve(exchangeContract.address, _amountAllowance);
+      await tokenBContract.approve(exchangeContract.address, _amountAllowance);
+      
+      //Owner deposit A
+      let amountDeposit = new BigNumber(60).times(new BigNumber(10).pow(decimals));
+      await exchangeContract.deposit(tokenAContract.address, amountDeposit); 
+
+      //Owner send B to user
+      let amountTransfer = new BigNumber(30).times(new BigNumber(10).pow(decimals));
+      await tokenBContract.transfer(userAccount, amountTransfer);  
+
+      //User set allowance B
+      let amountUsrAllowanceA = new BigNumber(60).times(new BigNumber(10).pow(decimals));
+      await tokenBContract.approve(exchangeContract.address, amountUsrAllowanceA, {from: userAccount});
+
+      //User exchange B -> A
+      let amountExchange = new BigNumber(12).times(new BigNumber(10).pow(decimals));
+      await exchangeContract.exchange(tokenBContract.address, amountExchange, {from: userAccount});
+      
+      let end_owner_A = new BigNumber(await tokenAContract.balanceOf(ownerAccount));
+      let end_owner_B = new BigNumber(await tokenBContract.balanceOf(ownerAccount));
+      let end_user_A = new BigNumber(await tokenAContract.balanceOf(userAccount));
+      let end_user_B = new BigNumber(await tokenBContract.balanceOf(userAccount));
+      let end_contract_A = new BigNumber(await tokenAContract.balanceOf(exchangeContract.address));
+      let end_contract_B = new BigNumber(await tokenBContract.balanceOf(exchangeContract.address));
+
+      let tokenAfromB = amountExchange.multipliedBy(new BigNumber(10).pow(decimals)).dividedBy(price);
+      assert.strictEqual(tokenAfromB.toNumber(), end_user_A.toNumber());
+
+      console.log('Price start = ', price.toNumber());
+      console.log('--- Owner balance ---');
+      console.log('Start A = ', start_owner_A.toNumber(), '   => Stop A = ', end_owner_A.toNumber());
+      console.log('Start B = ', start_owner_B.toNumber(), '   => Stop B = ', end_owner_B.toNumber());
+      console.log('--- User balance ---');
+      console.log('Start A = ', start_user_A.toNumber(), '   => Stop A = ', end_user_A.toNumber());
+      console.log('Start B = ', start_user_B.toNumber(), '   => Stop B = ', end_user_B.toNumber());
+      console.log('--- Contract balance ---');
+      console.log('Start A = ', start_contract_A.toNumber(), '   => Stop A = ', end_contract_A.toNumber());
+      console.log('Start B = ', start_contract_B.toNumber(), '   => Stop B = ', end_contract_B.toNumber());
     })
 
 
       it('Owner can change price', async () => {
-      let newPrice = new BigNumber(4.2576).times(new BigNumber(10).pow(decimals));
-      let priceUpdate = await exchangeContract.updatePrice(newPrice)
+      let newPrice = new BigNumber(14.3652).times(new BigNumber(10).pow(decimals));
+      let priceUpdate = await exchangeContract.updatePrice(newPrice);
       assert.ok(priceUpdate);
 
       let priceUpdated = new BigNumber(await exchangeContract.price.call());
