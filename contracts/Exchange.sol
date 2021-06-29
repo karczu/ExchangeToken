@@ -1,6 +1,6 @@
 pragma solidity ^0.8.0;
 
-// compile problem with import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+// compile problem with 'import "@openzeppelin/contracts/token/ERC20/ERC20.sol"';
 import "../node_modules/openzeppelin-solidity/contracts/access/Ownable.sol";
 import "../node_modules/openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 
@@ -24,11 +24,13 @@ contract Exchange is Ownable {
     _decA = (ERC20(addressTknA)).decimals();
     _decB = (ERC20(addressTknB)).decimals();
 
+    //check if tokens have the same or different decimals
     if(_decA>_decB){
       _decimalsDiff = _decA - _decB;
     }else if(_decA<_decB){
       _decimalsDiff = _decB - _decA;
     }
+    //used if tokens have different decimals
     _rate = 10**_decimalsDiff;
   }
     
@@ -53,32 +55,31 @@ function exchange(address tokenAddress, uint256 amount) public {
     _exchangeHelper(addressTknB, addressTknA, amount, _amountBuyTkn);
     emit ExchangeTokenEvent(msg.sender, tokenAddress, amount);
   }
-  }
+}
 
+function updatePrice(uint256 newPrice) public onlyOwner {
+  require(newPrice > 0, "New price needs to be over zero!");
+  price = newPrice;
+}
+  
+function deposit(address tokenAddress, uint256 amount) public onlyOwner {
+  require(amount > 0, "Deposit amount needs to be over zero!");
+  assert(ERC20(tokenAddress).transferFrom(msg.sender, address(this), amount));
+}
+  
+function _exchangeHelper(address sellTkn, address buyTkn, uint256 amountSellTkn, uint256 amountBuyTkn) private {
+  // sell amount >0
+  require(amountSellTkn > 0, "Amount of token needs to be over zero!");
+  // enough sell amount on user balance
+  uint256 balanceSenderToken = ERC20(sellTkn).balanceOf(msg.sender);
+  require(balanceSenderToken > amountSellTkn, "User balance too low!");
+  // enough buy amount on contract balance
+  uint256 balanceBuyToken = ERC20(buyTkn).balanceOf(address(this));
+  require(balanceBuyToken > amountBuyTkn, "Contract balance too low!");
 
-  function updatePrice(uint256 newPrice) public onlyOwner {
-    require(newPrice > 0, "New price needs to be over zero!");
-    price = newPrice;
-  }
-  
-  function deposit(address tokenAddress, uint256 amount) public onlyOwner {
-    require(amount > 0, "Deposit amount needs to be over zero!");
-    assert(ERC20(tokenAddress).transferFrom(msg.sender, address(this), amount));
-  }
-  
-    function _exchangeHelper(address sellTkn, address buyTkn, uint256 amountSellTkn, uint256 amountBuyTkn) private {
-    // sell amount >0
-    require(amountSellTkn > 0, "Amount of token needs to be over zero!");
-    // enough sell amount on user balance
-    uint256 balanceSenderToken = ERC20(sellTkn).balanceOf(msg.sender);
-    require(balanceSenderToken > amountSellTkn, "User balance too low!");
-    // enough buy amount on contract balance
-    uint256 balanceBuyToken = ERC20(buyTkn).balanceOf(address(this));
-    require(balanceBuyToken > amountBuyTkn, "Contract balance too low!");
-        
-    // sell sellTkn
-    assert(ERC20(sellTkn).transferFrom(msg.sender, address(this), amountSellTkn));
-    // buy buyTkn
-    assert(ERC20(buyTkn).transfer(msg.sender, amountBuyTkn));
+  // sell sellTkn
+  assert(ERC20(sellTkn).transferFrom(msg.sender, address(this), amountSellTkn));
+  // buy buyTkn
+  assert(ERC20(buyTkn).transfer(msg.sender, amountBuyTkn));
   }
 }
